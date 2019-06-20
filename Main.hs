@@ -6,7 +6,7 @@ data Arv =   No {pergunta :: String, filhos :: [Arv], resposta :: String}
 
 
 main = do
-            nome <- readFile "descricao.txt"
+            nome <- readFile "base.txt"
             putStrLn  $ show (leEntrada nome)
 
 -- As funções mesmaClasse e mesmaClasse' são usadas para verificar se um conjunto de dados possui todas as classes iguais

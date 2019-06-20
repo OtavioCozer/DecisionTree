@@ -1,6 +1,8 @@
 module Func(
- 
+ igrLista
 )where
+
+import Debug.Trace
 
 import Data.List    
 
@@ -52,28 +54,35 @@ ig ex caracteristica classes = (entropia ex classes) - (definition2 ex caracteri
 --as funçôes abaixo calculam IV com as mesmas condiçoes de IG--
 definition3 ex caracteristica classes = definition3' ex (tail caracteristica) classes
 
-definition3' ex [] classes = []
-definition3' ex (value:values) classes = ((modDef1 / modEx) * (logBase 2 (modDef1 / modEx)))   : (definition3' ex values classes)
+definition3' ex [] classes = 0
+definition3' ex (value:values) classes = ((modDef1 / modEx) * (lg (modDef1 / modEx)))   + (definition3' ex values classes)
                                 where modDef1 = tamanho (definition1 ex value)
                                       modEx = tamanho ex
 
 
---iv ex caracteristica classes = - (definition3 ex caracteristica classes)
+iv ex caracteristica classes = - (definition3 ex caracteristica classes)
+
+--lg calcula o log na base 2----
+lg 0 = 1                                      
+lg x = logBase 2 x
 
 
 
--- igr conforme definito no enunciado --
---igr ex a classes = (ig ex a classes) / (iv ex a classes)
+--igr conforme definito no enunciado --
+igr ex a classes = (ig ex a classes) / (iv ex a classes)
  
---calcula o igr de todas as caracteristicas--
---igrlista _ [] = []
---igrLista ex (c:cs) = (igr ex c) : igrLista (tail ex) cs    
+--calcula o igr de todas as caracteristicas lembrando que a primeira caracteristica de ex deve ser a--
+igrLista _ [] _ = []
+igrLista ex (a:as) classes = (igr ex a classes) : trace ("\n\ncalling igr lista with ex = "++ show (map tail ex) ++ " (a:as) = " ++ show as ++ " classes = " ++ show classes) (igrLista (map tail ex) as classes)    
 
 
-caracteristicas1 = [["Aparencia","Sol","Chuva","Nublado"],["Temperatura"],["Umidade"],["Vento","Sim","Nao"]]
 
-caracteristica1 = ["Aparencia","Sol","Chuva","Nublado"]
+caracteristicas1 = [["Aparencia" , "Sol" , "Chuva" , "Nublado"] , ["Vento", "Sim", "Nao"]]
 
-classes1 = ["Viajar","Va","NaoVa"]
+classes1 = ["Viajar", "Va", "NaoVa"]
 
-ex1 = [["Sol","25","72","Sim","Va"],["Sol","28","91","Sim","NaoVa"],["Sol","22","70","Nao","Va"],["Sol","23","95","Nao","NaoVa"],["Sol","30","85","Nao","NaoVa"]]
+ex1 = [["Sol","Sim","Va"],
+       ["Sol","Sim","NaoVa"],
+       ["Sol","Nao","Va"],
+       ["Sol","Nao","NaoVa"],
+       ["Sol","Nao","NaoVa"]] 
