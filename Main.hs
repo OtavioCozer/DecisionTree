@@ -24,14 +24,13 @@ mesmaClasse' anterior (x:xs) igual  = if classe == anterior then mesmaClasse' cl
 
 
 
-teste = No {pergunta = "otavio", filhos = [], resposta = "n sei"}
+caracteristicas1 = [["Aparencia" , "Sol" , "Chuva" , "Nublado"] ,["Temperatura"], ["Umidade"], ["Vento", "Sim", "Nao"]]
 
-entrada ="aparencia sol chuva nublado\n eu n sei oq eu to fazendo"
-
-entrada1 = "Aparencia Sol Chuva Nublado\nTemperatura\nUmidade\nVento Sim Nao\nViajar Va NaoVa"
-
-base = [["Sol","25","72","Sim","Va"],["Sol","28","91","Sim","NaoVa"],["Sol","22","70","Nao","Va"],["Sol","23","95","Nao","NaoVa"],["Sol","30","85","Nao","NaoVa"]]
-
-base1 = [["Sol","25","72","Sim","Va"]]
-
-descricao = [["Aparencia","Sol","Chuva","Nublado"],["Temperatura"],["Umidade"],["Vento","Sim","Nao"],["Viajar","Va","NaoVa"]]
+classes1 = ["Viajar", "Va", "NaoVa"]
+                                    
+ex1 = [["Sol","25","72","Sim","Va"],
+       ["Sol","28","91","Sim","NaoVa"],
+       ["Sol","22","70","Nao","Va"],
+       ["Sol","23","95","Nao","NaoVa"],
+       ["Sol","30","85","Nao","NaoVa"]] 
+                                    

@@ -48,14 +48,36 @@ compara a b | (fst a) >= (fst b) = GT
 --determinar medianas recebe uma [(valor, classe)]--
 determinaMedianas :: Eq b => [(String, b)] -> [String]
 determinaMedianas (_:[]) = []
-determinaMedianas (c:cs) =  if snd c == snd (head cs) then determinaMedianas cs else mediana (fst c) (fst (head cs))  : determinaMedianas cs
+determinaMedianas (c:cs)  = if snd c == snd (head cs) then determinaMedianas cs else mediana (fst c) (fst (head cs))  : determinaMedianas cs
 
 mediana :: String -> String -> String
 mediana x y = show (((read x :: Float) + (read y :: Float)) / 2.0)
 
 -- reecebe um base de dados e as caracteristicas e retorna a mediana das caracteristicas numericas--
 determinaValoresNumericos :: [[String]] -> [[a]] -> [[String]]
-determinaValoresNumericos ex caracteristicas = map determinaMedianas(ordenaColunas (juntaColunas ex caracteristicas))
+determinaValoresNumericos ex caracteristicas = map determinaMedianas(ordenaColunas (juntaColunas ex caracteristicas)) 
+
+criaIntervalos xs = criaIntervalos' xs True (head xs)
+
+criaIntervalos' (x:xs) ehInicio inferior | ehInicio && (ehFinal (x:xs)) = ("<=" ++ x) : (">>" ++ x) : []
+                                         | ehInicio == True = ("<=" ++ x) : criaIntervalos' xs False x
+                                         | ehFinal (x:xs) = ("<>"++ inferior ++ " " ++ x) : [">>" ++ x]
+                                         | otherwise = ("<>"++ inferior ++ " " ++ x)  : criaIntervalos' xs False x
+                                         
+                               
+insereValoresNumericos ex caracteristicas = insereValoresNumericos' caracteristicas (map criaIntervalos(determinaValoresNumericos ex caracteristicas))
+
+insereValoresNumericos' (caracteristica:caracteristicas) [] = (caracteristica:caracteristicas)
+insereValoresNumericos' (caracteristica:caracteristicas) (intervalo:intervalos) = if (ehColunaNumerica caracteristica) then (caracteristica ++ intervalo) : insereValoresNumericos' caracteristicas intervalos else insereValoresNumericos' caracteristicas (intervalo:intervalos)
+                                             
+
+ehFinal (_:[]) = True
+ehFinal _ = False
+         
+
+y = ["22.5","24.0","26.5"]
+x = ["78.5"]
+
 
 
 
