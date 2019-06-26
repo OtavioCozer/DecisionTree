@@ -1,5 +1,5 @@
 module Discretization(
- determinaValoresNumericos
+ insereValoresNumericos
 )where
 
 import Data.List
@@ -59,16 +59,16 @@ determinaValoresNumericos ex caracteristicas = map determinaMedianas(ordenaColun
 
 criaIntervalos xs = criaIntervalos' xs True (head xs)
 
-criaIntervalos' (x:xs) ehInicio inferior | ehInicio && (ehFinal (x:xs)) = ("<=" ++ x) : (">>" ++ x) : []
-                                         | ehInicio == True = ("<=" ++ x) : criaIntervalos' xs False x
-                                         | ehFinal (x:xs) = ("<>"++ inferior ++ " " ++ x) : [">>" ++ x]
-                                         | otherwise = ("<>"++ inferior ++ " " ++ x)  : criaIntervalos' xs False x
+criaIntervalos' (x:xs) ehInicio inferior | ehInicio && (ehFinal (x:xs)) = ("<= " ++ x) : (">> " ++ x) : []
+                                         | ehInicio == True = ("<= " ++ x) : criaIntervalos' xs False x
+                                         | ehFinal (x:xs) = ("<> "++ inferior ++ " " ++ x) : [">> " ++ x]
+                                         | otherwise = ("<> "++ inferior ++ " " ++ x)  : criaIntervalos' xs False x
                                          
                                
 insereValoresNumericos ex caracteristicas = insereValoresNumericos' caracteristicas (map criaIntervalos(determinaValoresNumericos ex caracteristicas))
 
 insereValoresNumericos' (caracteristica:caracteristicas) [] = (caracteristica:caracteristicas)
-insereValoresNumericos' (caracteristica:caracteristicas) (intervalo:intervalos) = if (ehColunaNumerica caracteristica) then (caracteristica ++ intervalo) : insereValoresNumericos' caracteristicas intervalos else insereValoresNumericos' caracteristicas (intervalo:intervalos)
+insereValoresNumericos' (caracteristica:caracteristicas) (intervalo:intervalos) = if (ehColunaNumerica caracteristica) then (caracteristica ++ intervalo) : insereValoresNumericos' caracteristicas intervalos else caracteristica : insereValoresNumericos' caracteristicas (intervalo:intervalos)
                                              
 
 ehFinal (_:[]) = True
@@ -78,10 +78,10 @@ ehFinal _ = False
 y = ["22.5","24.0","26.5"]
 x = ["78.5"]
 
+teste = "<>22.5 24.0"
 
 
-
-caracteristicas1 = [["Aparencia" , "Sol" , "Chuva" , "Nublado"] ,["Temperatura"], ["Umidade"], ["Vento", "Sim", "Nao"]]
+caracteristicas1 = [["Aparencia","Sol","Chuva","Nublado"],["Temperatura","<= 22.5","<> 22.5 24.0","<> 24.0 26.5",">> 26.5"],["Umidade","<= 78.5",">> 78.5"],["Vento","Sim","Nao"]]
 
 classes1 = ["Viajar", "Va", "NaoVa"]
 

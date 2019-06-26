@@ -5,7 +5,3 @@ module Leitura
 leEntrada :: String -> [[String]]
 leEntrada = map words . lines
 
-
-
-
-

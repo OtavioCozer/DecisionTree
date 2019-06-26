@@ -1,9 +1,12 @@
 module Func(
- igrLista
+ melhorTeste,
+ percentagens,
+ ehValorNumerico,
+ definition1
 )where
 
 import Debug.Trace
-
+import Data.Char
 import Data.List    
 
 --calcula length como float--
@@ -15,7 +18,7 @@ entropia [] _ = 0
 entropia ex classes = entropia' (percentagens ex classes)
 
 entropia' [] = 0
-entropia' (ocorrencia:ocorrencias) = - (ocorrencia * (logBase 2 ocorrencia)) + entropia' ocorrencias
+entropia' (ocorrencia:ocorrencias) = - (ocorrencia * (lg ocorrencia)) + entropia' ocorrencias
 
 -----------------------------------------------------------------
 
@@ -33,8 +36,16 @@ frequency classe (ex:exs) = if (last ex) == classe then 1 + frequency classe exs
 -- a funcção a seguir implementa a seguinte definição {x E Ex/ values(x,a)=v} mostrada no enunciado do trabalho--
 -- ela deve passar a sua base de dados e um valor de uma dada caracteristica
 
-definition1 :: [[String]] -> String -> [[String]]
-definition1 ex value = [ x | x <- ex, (head x) == value ] 
+definition1 ex value | (cabeca == "<=" || cabeca == "<>" || cabeca == ">>")  = definitionNumerico ex (words value)
+                     | otherwise = definitionString ex value
+                        where cabeca = head (words value)
+
+definitionNumerico ex parseValue | head parseValue == "<=" = [ x | x <- ex, (head x) <= (parseValue!!1)  ] 
+                                 | head parseValue == "<>" = [ x | x <- ex, ((head x) > (parseValue!!1)) && ((head x) <= (parseValue!!2)) ] 
+                                 | head parseValue == ">>" = [ x | x <- ex, (head x) > (parseValue!!1)  ] 
+
+definitionString :: [[String]] -> String -> [[String]]
+definitionString ex value = [ x | x <- ex, (head x) == value ] 
 
 ---------------------------------------------------------------------------
 
@@ -63,26 +74,60 @@ definition3' ex (value:values) classes = ((modDef1 / modEx) * (lg (modDef1 / mod
 iv ex caracteristica classes = - (definition3 ex caracteristica classes)
 
 --lg calcula o log na base 2----
-lg 0 = 1                                      
+lg 0 = 0                                      
 lg x = logBase 2 x
 
 
 
 --igr conforme definito no enunciado --
-igr ex a classes = (ig ex a classes) / (iv ex a classes)
+igr ex a classes = divisao (ig ex a classes) (iv ex a classes)
  
+-- divisao implementa uma divisao por 0--
+divisao 0 0 = 0
+divisao x y =x/y
+
 --calcula o igr de todas as caracteristicas lembrando que a primeira caracteristica de ex deve ser a--
 igrLista _ [] _ = []
-igrLista ex (a:as) classes = (igr ex a classes) : trace ("\n\ncalling igr lista with ex = "++ show (map tail ex) ++ " (a:as) = " ++ show as ++ " classes = " ++ show classes) (igrLista (map tail ex) as classes)    
+igrLista ex (a:as) classes = (igr ex a classes) : (igrLista (map tail ex) as classes)    
 
+--melhor Teste retorna o nome do melhor teste e o seu indice no grupo de caractersiticas--
+melhorTeste ex a classes = retornaMaior igrs a
+                            where igrs = igrLista ex a classes
 
+--retorna o maior elemento e um indice--
+retornaMaior igrs a = retornaMaior' igrs a ((head a),0) 0 (head igrs)
 
-caracteristicas1 = [["Aparencia" , "Sol" , "Chuva" , "Nublado"] , ["Vento", "Sim", "Nao"]]
+--retornaMaior' a b c d e = (show a) ++ (show b) ++ (show c) ++ (show d) ++ (show e) 
+retornaMaior' [] [] melhorTeste _ _ = melhorTeste 
+retornaMaior' (igr:igrs) (a:as) maiorElem index maior = if igr > maior then retornaMaior' igrs as (a,index) (index+1) igr else  retornaMaior' igrs as maiorElem (index+1) maior
+
+--verfifica se uma caracteristica é numérica--
+ehValorNumerico value = ehValorNumerico' (words (value)) 
+
+ehValorNumerico'  parseValue | head parseValue == "<=" = True
+                                      | head parseValue == "<>" = True 
+                                      | head parseValue == ">>" = True
+                                      | otherwise = False
+
+caracteristicas1 = [["Aparencia","Sol","Chuva","Nublado"],["Temperatura","<= 22.5","<> 22.5 24.0","<> 24.0 26.5",">> 26.5"],["Umidade","<= 78.5",">> 78.5"],["Vento","Sim","Nao"]]
+
+char = ["Temperatura","<= 22.5","<> 22.5 24.0","<> 24.0 26.5",">> 26.5"]
 
 classes1 = ["Viajar", "Va", "NaoVa"]
 
-ex1 = [["Sol","Sim","Va"],
-       ["Sol","Sim","NaoVa"],
-       ["Sol","Nao","Va"],
-       ["Sol","Nao","NaoVa"],
-       ["Sol","Nao","NaoVa"]] 
+ex1 = [["Sol","25","72","Sim","Va"],
+       ["Sol","28","91","Sim","NaoVa"],
+       ["Sol","22","70","Nao","Va"],
+       ["Sol","23","95","Nao","NaoVa"],
+       ["Sol","30","85","Nao","NaoVa"]]
+
+ex2 = [["25","72","Sim","Va"],
+       ["28","91","Sim","NaoVa"],
+       ["22","70","Nao","Va"],
+       ["23","95","Nao","NaoVa"],
+       ["30","85","Nao","NaoVa"]]      
+       
+ex3 = [["25","72","Sim","Va"],["28","91","Sim","NaoVa"],["22","70","Nao","Va"],["23","95","Nao","NaoVa"],["30","85","Nao","NaoVa"]]
+value = "<> 22.5 24.0"
+
+values = ["1<= 22.5","<> 22.5 24.0","<> 24.0 26.5",">> 26.5"]
