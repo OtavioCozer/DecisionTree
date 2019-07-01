@@ -7,28 +7,39 @@ data Arv =   No {pergunta :: String, filhos :: [Arv], resposta :: String, index 
           | Folha{classe :: String, resposta :: String} 
           | Nil deriving Show
 
+--Para gerar o profile:
+       --Compilar: ghc -prof -fprof-auto -rtsopts --make .\Main.hs
+       --Run: .\Main.exe +RTS -p
 
+--Para medir o tempo: 
+       --Run: Measure-Command {start-process .\Main.exe -Wait}
+
+--Para debugar:
+       --Compilar:
 main = do
-            baseIO <- readFile "base1.txt"
-            caracteristicasIO <- readFile "descricao1.txt"
-            casoIO <- readFile "caso1.txt"
+            baseIO <- readFile "base.txt"
+            caracteristicasIO <- readFile "descricao.txt"
+            casoIO <- readFile "caso.txt"
+           
             let base = leEntrada baseIO
             let caracteristicas' = leEntrada caracteristicasIO
             let caracteristicas = insereValoresNumericos base (init caracteristicas') 
             let classes = last caracteristicas'
             let casos = leEntrada casoIO
             let fixedChar = map head caracteristicas
-            let arvore = arvoreDecisao base caracteristicas (maioria base classes) classes "" fixedChar
+            let arvore = arvoreDecisao base caracteristicas (maioria base classes []) classes "" fixedChar
             let classified = classificarTodos casos arvore
+           
             putStrLn $ show base
             --putStrLn $ show ( init caracteristicas')           
-            --putStrLn $ show caracteristicas
-            --putStrLn $ show (maioria base classes)
-            --putStrLn $ show classes 
+            putStrLn $ show caracteristicas
+            putStrLn $ show (maioria base classes [])
+            putStrLn $ show classes 
             --putStrLn $ show casos
+            putStrLn ("\n")
             writeFile "arv.txt" (show arvore)            --putStrLn (show classified)
             writeFile "result.txt" (show classified)
-            putStrLn ("OKKK")
+            putStrLn ("OKKK3")
 
 
 --implementa o algoritmo da árvore de decisão--
@@ -36,12 +47,12 @@ main = do
 
 arvoreDecisao exemplos caracteristicas maisComum classes value fixedChar | exemplos == [] = Folha{classe = maisComum, resposta = value} 
                                                                          | mesmaClasse exemplos = Folha{classe = (last (head exemplos)), resposta = value}
-                                                                         | caracteristicas == [] = Folha{classe = maioria exemplos classes, resposta = value} 
+                                                                         | caracteristicas == [] = Folha{classe = maioria exemplos classes [], resposta = value} 
                                                                          | otherwise = criaNo exemplos caracteristicas maisComum classes value fixedChar
 
 criaNo exemplos caracteristicas maisComum classes value fixedChar = (forEachValue arvore exemplos newCaracteristicas values maisComum classes newExemplos melhorIndex fixedChar)
-                                                               where melhor = melhorTeste exemplos caracteristicas classes fixedChar
-                                                                     melhorChar = fst' melhor
+                                                               where melhor =trace("--EXEMPLOs=" ++ (show exemplos) ++ "--\n--CARACTERISTICAS=" ++ (show caracteristicas) ++ "--\n--CLASSES=" ++ (show classes) ++ "--\n--FIXEDCHAR=" ++ (show fixedChar) ++ "--\n" ) (melhorTeste exemplos caracteristicas classes fixedChar)
+                                                                     melhorChar = trace("--MELHOR="++ show melhor ++ "--") (fst' melhor)
                                                                      melhorIndex = snd' melhor
                                                                      arvIndex = trd melhor
                                                                      values = tail (melhorChar)
@@ -64,19 +75,16 @@ raiz melhor value indice = No {pergunta = melhor, filhos = [], resposta = value,
 forEachValue arvore _ _ [] _ _ _ _ _ = arvore 
 forEachValue arvore exemplos caracteristicas (value:values) maisComum classes newExemplos index fixedChar = forEachValue newArvore exemplos caracteristicas values maisComum classes newExemplos index fixedChar
                                                                              where exemplosi = refinarBase exemplos value index --toda hora chamar map drop index é burro. tem q ajeita isso 
-                                                                                   subArvore = {- trace("\n--Calling exemplosi=" ++ (show exemplosi) ++ " And exemplosatualizados=" ++ (show exemplosAtualizados) ++ " And caracteristicas=" ++ (show caracteristicas) ) -}(arvoreDecisao exemplosAtualizados caracteristicas (maioria exemplos classes) classes value fixedChar) 
+                                                                                   subArvore =trace("\n--EXEMPLOS ATUALIZADOS= " ++ (show exemplosAtualizados) ++ "--\n--CARACTERISTICAS ATUALIZADAS =" ++ (show caracteristicas) ++ "--\n")(arvoreDecisao exemplosAtualizados caracteristicas (maioria exemplosAtualizados classes maisComum) classes value fixedChar) 
                                                                                    newArvore = adicionaFilho arvore subArvore
-                                                                                   exemplosAtualizados = map (removeItem index) exemplosi
+                                                                                   exemplosAtualizados = map (removeItem (index)) exemplosi
 {- refinandoBase exemplos value | ehValorNumerico value = refinandoBaseNumerico exemplos value
                              | otherwise = refinandoBaseNumerico exemplos value -}
 
 adicionaFilho (No a filhos b i) subArvore = (No a (subArvore : filhos) b i)
 
-melhorTeste1 ex a classes = (["Umidade","<= 78.5",">> 78.5"],2)
-
---refinandoBaseNumerico exemplos values = [[["Sol","25","72","Sim","Va"],["Sol","28","91","Sim","NaoVa"],["Sol","22","70","Nao","Va"],["Sol","23","95","Nao","NaoVa"],["Sol","30","85","Nao","NaoVa"]]] 
-
-maioria ex classes = maioria' ocorrencias (tail classes) (maximum ocorrencias)
+maioria [] classes maisComum = maisComum
+maioria ex classes maisComum = maioria' ocorrencias (tail classes) (maximum ocorrencias)
                                    where ocorrencias = percentagens ex classes 
 
 maioria' (o:os) (c:cs) maior = if maior == o then c else maioria' os cs maior
@@ -93,33 +101,9 @@ removeItem 0 (y:ys) = ys
 removeItem n (y:ys) = y : removeItem (n-1) ys
 
 
-arv1 = No {pergunta = "Umidade", filhos = [Folha {classe = "NaoVa", resposta = ">> 78.5"},Folha {classe = "Va", resposta = "<= 78.5"}], resposta = "", index = 2}
-
-casos1 = ["Chuva","23","92","Sim"]
-
-moreCommom= "NaoVa"
-
-teste = ">> 78.5"
-
 trd (_,_,x) = x
 fst' (x,_,_) = x
 snd' (_,x,_) = x
 
-caracteristicas1 = [["Aparencia","Sol","Chuva","Nublado"],["Temperatura","<= 22.5","<> 22.5 24.0","<> 24.0 26.5",">> 26.5"],["Umidade","<= 78.5",">> 78.5"],["Vento","Sim","Nao"]]
-
-classes1 = ["Viajar", "Va", "NaoVa"]
-                                    
-ex1 = [["Sol","25","72","Sim","Va"],
-       ["Sol","28","91","Sim","NaoVa"],
-       ["Sol","22","70","Nao","Va"],
-       ["Sol","23","95","Nao","NaoVa"],
-       ["Sol","30","85","Nao","NaoVa"]] 
-                                    
-ex2 = [["Sol","28","91","Sim","NaoVa"],
-       ["Sol","23","95","Nao","NaoVa"],
-       ["Sol","30","85","Nao","NaoVa"]] 
-
-
-test1 = No {pergunta = "Umidade", filhos = [], resposta = "", index=1}
-
-test2 = No {pergunta = "oiee", filhos = [], resposta = "", index=2}
+teste1 = [["Chuva","30","72","Sim","Va"],["Nublado","28","91","Sim","NaoVa"],["Sol","22","100","Nao","Va"],["Sol","23","95","Nao","NaoVa"],["Nublado","30","85","Nao","NaoVa"],["Nublado","22","72","Sim","Va"],["Sol","28","70","Sim","NaoVa"],["Chuva","22","70","Nao","Va"],["Sol","23","95","Nao","NaoVa"],["Nublado","30","85","Nao","NaoVa"]]
+value1 = "<= 22.5"

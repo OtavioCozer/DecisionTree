@@ -29,7 +29,7 @@ entropia' (ocorrencia:ocorrencias) = - (ocorrencia * (lg ocorrencia)) + entropia
 
 percentagens ex (classe:classes) = [    (frequency x ex)/(tamanho ex)     | x <- classes ] 
 
-frequency classe ([]:_) = 0
+--frequency classe ([]:_) = 0
 frequency classe [] = 0
 frequency classe (ex:exs) = if (last ex) == classe then 1 + frequency classe exs else 0 + frequency classe exs --Essa classe está errada???? tenho que avaliar melhor depoisss
                                                                                                                -- em uma das chamas (ex:exs) = [[][][][][]] isso deveria aoontecer??
@@ -38,18 +38,21 @@ frequency classe (ex:exs) = if (last ex) == classe then 1 + frequency classe exs
 
 -- a funcção a seguir implementa a seguinte definição {x E Ex/ values(x,a)=v} mostrada no enunciado do trabalho--
 -- ela deve passar a sua base de dados e um valor de uma dada caracteristica
-definition1 ([]:_) _ = []
+--definition1 ([]:_) _ = []
 definition1 ex value | (cabeca == "<=" || cabeca == "<>" || cabeca == ">>")  = (definitionNumerico ex (words value))--Essa classe está errada???? tenho que avaliar melhor depoisss -- em uma das chamas (ex:exs) = [[][][][][]] isso deveria aoontecer??
                      | otherwise = definitionString ex value
                         where cabeca = head (words value)
 
-definitionNumerico ex parseValue | head parseValue == "<=" = [ x | x <- ex, (head x) <= (parseValue!!1)  ] 
-                                 | head parseValue == "<>" = [ x | x <- ex, ((head x) > (parseValue!!1)) && ((head x) <= (parseValue!!2)) ] 
-                                 | head parseValue == ">>" = [ x | x <- ex, (head x) > (parseValue!!1)  ] 
+definitionNumerico ex parseValue | head parseValue == "<=" = [ x | x <- ex, ehMenorString (head x) (parseValue!!1)  ] 
+                                 | head parseValue == "<>" = [ x | x <- ex, ehEntreString (head x) (parseValue!!1) (parseValue!!2) ] 
+                                 | head parseValue == ">>" = [ x | x <- ex, ehMaiorString (head x) (parseValue!!1)  ] 
 
 definitionString :: [[String]] -> String -> [[String]]
 definitionString ex value = [ x | x <- ex, (head x) == value ] 
 
+ehMenorString x y = (read x :: Float) <= (read y :: Float)
+ehEntreString x y z = ((read x :: Float) > (read y :: Float)) && ((read x :: Float) <= (read z :: Float))
+ehMaiorString x y = (read x :: Float) > (read y :: Float)
 ---------------------------------------------------------------------------
 
 -- a função abaixo é usada para calcular IG definido no enunciado a primeira caracteristica de ex deve ser a caracteristica da funcao--
@@ -122,9 +125,9 @@ compararCaso valueCaso valueCaracteristica | (cabeca == "<=" || cabeca == "<>" |
                                            | otherwise = valueCaso == valueCaracteristica 
                                              where cabeca = head (words valueCaracteristica)
 
-compararCasoNumerico valueCaso parseValue | head parseValue == "<=" = valueCaso <= (parseValue!!1)  
-                                          | head parseValue == "<>" = (valueCaso > (parseValue!!1)) && (valueCaso <= (parseValue!!2)) 
-                                          | head parseValue == ">>" = valueCaso > (parseValue!!1)  
+compararCasoNumerico valueCaso parseValue | head parseValue == "<=" = ehMenorString valueCaso (parseValue!!1)  
+                                          | head parseValue == "<>" = ehEntreString valueCaso (parseValue!!1) (parseValue!!2) 
+                                          | head parseValue == ">>" = ehMaiorString valueCaso (parseValue!!1)  
 
 
 
@@ -135,32 +138,23 @@ refinarBase ex value index | (cabeca == "<=" || cabeca == "<>" || cabeca == ">>"
                            | otherwise = refinarBaseString ex value index
                               where cabeca = head (words value)
 
-refinarBaseNumerico ex parseValue index | head parseValue == "<=" = [ x | x <- ex, (x!!index) <= (parseValue!!1)  ] 
-                                        | head parseValue == "<>" = [ x | x <- ex, ((x!!index) > (parseValue!!1)) && ((x!!index) <= (parseValue!!2)) ] 
-                                        | head parseValue == ">>" = [ x | x <- ex, (x!!index) > (parseValue!!1)  ] 
+refinarBaseNumerico ex parseValue index | head parseValue == "<=" = [ x | x <- ex, ehMenorString (x!!index) (parseValue!!1) ] 
+                                        | head parseValue == "<>" = [ x | x <- ex, ehEntreString (x!!index) (parseValue!!1) (parseValue!!2) ] 
+                                        | head parseValue == ">>" = [ x | x <- ex, ehMaiorString (x!!index) (parseValue!!1)  ] 
 
 
 refinarBaseString ex value index = [ x | x <- ex, (x!!index) == value ] 
 
-caracteristicas1 = [["Aparencia","Sol","Chuva","Nublado"],["Temperatura","<= 22.5","<> 22.5 24.0","<> 24.0 26.5",">> 26.5"],["Umidade","<= 78.5",">> 78.5"],["Vento","Sim","Nao"]]
+ex1 = [["Nublado","20","20","Sim","Va"],
+      ["Sol","22","20","Sim","NaoVa"],
+      ["Nublado","22","20","Nao","Va"],
+      ["Sol","22","20","Nao","NaoVa"],
+      ["Nublado","23","20","Nao","NaoVa"],
+      ["Chuva","22","25","Sim","Va"],
+      ["Nublado","23","25","Sim","NaoVa"],
+      ["Chuva","23","20","Nao","Va"],
+      ["Nublado","23","20","Nao","NaoVa"],
+      ["Sol","23","20","Nao","NaoVa"]]
 
-char = ["Temperatura","<= 22.5","<> 22.5 24.0","<> 24.0 26.5",">> 26.5"]
-
-classes1 = ["Viajar", "Va", "NaoVa"]
-
-ex1 = [["Sol","25","72","Sim","Va"],
-       ["Sol","28","91","Sim","NaoVa"],
-       ["Sol","22","70","Nao","Va"],
-       ["Sol","23","95","Nao","NaoVa"],
-       ["Sol","30","85","Nao","NaoVa"]]
-
-ex2 = [["25","72","Sim","Va"],
-       ["28","91","Sim","NaoVa"],
-       ["22","70","Nao","Va"],
-       ["23","95","Nao","NaoVa"],
-       ["30","85","Nao","NaoVa"]]      
-       
-ex3 = [["25","72","Sim","Va"],["28","91","Sim","NaoVa"],["22","70","Nao","Va"],["23","95","Nao","NaoVa"],["30","85","Nao","NaoVa"]]
-value = "<> 22.5 24.0"
-
-values = ["1<= 22.5","<> 22.5 24.0","<> 24.0 26.5",">> 26.5"]
+c1 = [["Aparencia","Sol","Chuva","Nublado"],["Temperatura","<= 22.5","<> 22.5 30.0","<> 30.0 30.5",">> 30.5"],["Umidade","<= 60.0",">> 60.0"],["Vento","Sim","Nao"]]
+class1 = ["Viajar","Va","NaoVa"]
