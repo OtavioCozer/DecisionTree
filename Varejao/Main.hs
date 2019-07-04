@@ -38,7 +38,7 @@ main = do
             --putStrLn $ show casos
             putStrLn ("\n")
             writeFile "arv.txt" (show arvore)            --putStrLn (show classified)
-            writeFile "result.txt" (show classified)
+            writeFile "classe.txt" (unlines classified)
             putStrLn ("OKKK3")
 
 
