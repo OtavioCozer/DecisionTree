@@ -38,7 +38,7 @@ main = do
             --putStrLn $ show casos
             putStrLn ("\n")
             writeFile "arv.txt" (show arvore)            --putStrLn (show classified)
-            writeFile "result.txt" (show classified)
+            writeFile "classe.txt" (unlines classified)
             putStrLn ("OKKK3")
 
 
@@ -74,10 +74,10 @@ raiz melhor value indice = No {pergunta = melhor, filhos = [], resposta = value,
 
 forEachValue arvore _ _ [] _ _ _ _ _ = arvore 
 forEachValue arvore exemplos caracteristicas (value:values) maisComum classes newExemplos index fixedChar = forEachValue newArvore exemplos caracteristicas values maisComum classes newExemplos index fixedChar
-                                                                             where exemplosi = refinarBase exemplos value index --toda hora chamar map drop index é burro. tem q ajeita isso 
-                                                                                   subArvore =trace("\n--EXEMPLOS ATUALIZADOS= " ++ (show exemplosAtualizados) ++ "--\n--CARACTERISTICAS ATUALIZADAS =" ++ (show caracteristicas) ++ "--\n")(arvoreDecisao exemplosAtualizados caracteristicas (maioria exemplosAtualizados classes maisComum) classes value fixedChar) 
+                                                                             where exemplosi = trace ("\n--VALOR UTILIZADO= " ++ (show value) ++ "--\n") (refinarBase exemplos value index) --toda hora chamar map drop index é burro. tem q ajeita isso 
+                                                                                   subArvore =trace("\n--EXEMPLOS ATUALIZADOS= " ++ (show exemplosAtualizados) ++ "--\n--CARACTERISTICAS ATUALIZADAS =" ++ (show caracteristicas) ++ "--\n")(arvoreDecisao exemplosAtualizados (insereValoresNumericos exemplosAtualizados caracteristicas) (maioria exemplosAtualizados classes maisComum) classes value fixedChar) 
                                                                                    newArvore = adicionaFilho arvore subArvore
-                                                                                   exemplosAtualizados = map (removeItem (index)) exemplosi
+                                                                                   exemplosAtualizados =trace ("\n--EXEMPLOS FILTRADOS= " ++ (show exemplosi)++"--\n") (map (removeItem (index)) exemplosi)
 {- refinandoBase exemplos value | ehValorNumerico value = refinandoBaseNumerico exemplos value
                              | otherwise = refinandoBaseNumerico exemplos value -}
 

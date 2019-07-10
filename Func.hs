@@ -146,13 +146,13 @@ refinarBaseNumerico ex parseValue index | head parseValue == "<=" = [ x | x <- e
 refinarBaseString ex value index = [ x | x <- ex, (x!!index) == value ] 
 
 ex1 = [["Nublado","20","20","Sim","Va"],
-      ["Sol","22","20","Sim","NaoVa"],
-      ["Nublado","22","20","Nao","Va"],
+      ["Sol","22","20","Nao","NaoVa"],
+      ["Nublado","22","20","Sim","Va"],
       ["Sol","22","20","Nao","NaoVa"],
       ["Nublado","23","20","Nao","NaoVa"],
       ["Chuva","22","25","Sim","Va"],
-      ["Nublado","23","25","Sim","NaoVa"],
-      ["Chuva","23","20","Nao","Va"],
+      ["Nublado","23","25","Nao","NaoVa"],
+      ["Chuva","23","20","Sim","Va"],
       ["Nublado","23","20","Nao","NaoVa"],
       ["Sol","23","20","Nao","NaoVa"]]
 
